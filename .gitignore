@@ -1,0 +1,16 @@
+# 依赖与产物（本仓当前零依赖、无构建步骤，留作以后使用）
+node_modules/
+dist/
+coverage/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 本地环境与编辑器
+.env
+.env.*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
