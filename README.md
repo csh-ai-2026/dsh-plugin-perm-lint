@@ -9,6 +9,24 @@ node lint-perm-docs.mjs <插件目录> [更多目录...]
 
 退出码：`0` = 未发现可疑项；`1` = 有可疑项；`2` = 用法 / IO 错误。
 
+## 实测输出（对某第三方委派插件 0.1.2）
+
+```
+=== <plugin-dir> ===
+[SUSPECT] lib\index.js —— 2/2 处未在附近写明「是否会免确认」
+          L14: allowedTools: z.array(z.string()).description('Claude Code built-in tools to allow.'),
+          L155: description: 'Override the Claude Code built-in tools to allow (e.g. Read, Edit, Bash, Grep, Glob).',
+[SUSPECT] README.md —— 1/2 处未在附近写明「是否会免确认」
+          L52: | `allowedTools` | 未设 | 允许的 Claude Code 内置工具名列表 |
+            ↳ 同文件别处确实有「免确认 / 自动批准」类说明词，但不在这一行附近；
+              若那些说明词是给**别的参数**写的，本行读起来仍然是「只是允许」。
+
+--- 汇总：候选 4 处；其中 3 处未在邻近行写明「是否会免确认」---
+```
+
+注意最后一段：同一个 README 里**另一个**参数（`permissionMode`）写了「自动放行 / 完全免确认」，所以那一行被正确放过——
+而 `allowedTools` 那行没有。**这正是这个工具存在的意义：同一个文件里写没写清楚，要按参数分别看。**
+
 ## 为什么需要它
 
 在 DSH 里，插件的工具参数说明是调用方（尤其模型）判断「这个参数意味着什么权限」的**唯一依据**。
@@ -27,24 +45,6 @@ node lint-perm-docs.mjs <插件目录> [更多目录...]
 3. 在该行**前后各 2 行的窗口内**查找「自动批准 / 免确认 / 不再询问 / `auto-approve` / `silently`」等说明词：
    - 找到 → `[ok]`（同一处已写明语义）
    - 没找到 → `[SUSPECT]`，并提示「同文件别处是否有说明词」（那些说明词很可能是给**别的参数**写的）
-
-## 实测输出（对某第三方委派插件 0.1.2）
-
-```
-=== <plugin-dir> ===
-[SUSPECT] lib\index.js —— 2/2 处未在附近写明「是否会免确认」
-          L14: allowedTools: z.array(z.string()).description('Claude Code built-in tools to allow.'),
-          L155: description: 'Override the Claude Code built-in tools to allow (e.g. Read, Edit, Bash, Grep, Glob).',
-[SUSPECT] README.md —— 1/2 处未在附近写明「是否会免确认」
-          L52: | `allowedTools` | 未设 | 允许的 Claude Code 内置工具名列表 |
-            ↳ 同文件别处确实有「免确认 / 自动批准」类说明词，但不在这一行附近；
-              若那些说明词是给**别的参数**写的，本行读起来仍然是「只是允许」。
-
---- 汇总：候选 4 处；其中 3 处未在邻近行写明「是否会免确认」---
-```
-
-注意最后一段：同一个 README 里**另一个**参数（`permissionMode`）写了「自动放行 / 完全免确认」，所以那一行被正确放过——
-而 `allowedTools` 那行没有。**这正是这个工具存在的意义：同一个文件里写没写清楚，要按参数分别看。**
 
 ## 局限（请一并读）
 
